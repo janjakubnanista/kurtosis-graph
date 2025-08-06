@@ -1,0 +1,5 @@
+name: github.com/janjakubnanista/kurtosis-graph
+description: |
+  # Kurtosis Graph Package
+  This is a Kurtosis utility package providing a directed graph implementation
+  of services and their dependencies.
