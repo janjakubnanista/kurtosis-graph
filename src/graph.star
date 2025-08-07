@@ -96,13 +96,14 @@ def create():
         # Now we can order the items
         remaining_items = __items_by_id.values()
         ordered_items = []
-        num_items = len(ordered_items)
+        num_items = len(remaining_items)
 
         # Luckily for us our stack-based algo to order the graph
         # has an upper limit of iterations - in every iteration we need to add at least one item to the ordered items,
         # so the number of iterations is at most the number of items in the graph.
         for iteration in range(num_items):
             num_remaining_items = len(remaining_items)
+            new_remaining_items = []
 
             # We store the IDs of the already ordered items for easy lookups
             ordered_item_ids = [item.id for item in ordered_items]
@@ -118,18 +119,19 @@ def create():
 
                 # If the items has missing dependencies, we cannot add it yet
                 if missing_item_dependencies:
-                    continue
+                    new_remaining_items.append(item)
+                else:
+                    # If we are here, it means that all the dependencies of the item are already in the ordered items
+                    # and we can add it to the ordered items
+                    ordered_items.append(item)
+                    ordered_item_ids.append(item.id)
 
-                # If we are here, it means that all the dependencies of the item are already in the ordered items
-                # and we can add it to the ordered items
-                ordered_items.append(item)
-                ordered_item_ids.append(item.id)
-                remaining_items.remove(item)
+            remaining_items = new_remaining_items
 
             # If the number of remaining items did not change,
             # it means that we did not add any items in this iteration
             # and we are stuck in a cycle.
-            if len(remaining_items) == num_remaining_items:
+            if len(new_remaining_items) == num_remaining_items:
                 break
 
         if len(remaining_items) > 0:
