@@ -135,10 +135,9 @@ def create():
                 break
 
         if len(remaining_items) > 0:
-            # TODO Better error message
             fail(
-                "Cannot create launch sequence: Cycle detected in the graph. Remaining items: {}".format(
-                    ",".join([item.id for item in remaining_items])
+                "Cannot create launch sequence: Cycle detected in the graph: {}".format(
+                    " ↔︎ ".join([item.id for item in remaining_items])
                 )
             )
 
