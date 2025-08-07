@@ -135,9 +135,6 @@ def create():
                 break
 
         if len(remaining_items) > 0:
-            kurtosistest.debug("remaining items: {}".format(",".join([item.id for item in remaining_items])))
-            kurtosistest.debug("ordered items: {}".format(",".join([item.id for item in ordered_items])))
-
             # TODO Better error message
             fail(
                 "Cannot create launch sequence: Cycle detected in the graph. Remaining items: {}".format(
