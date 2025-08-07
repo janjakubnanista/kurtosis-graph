@@ -237,7 +237,7 @@ def test_util_schedule_simple_branching_dependencies(plan):
 
     expect.eq(
         graph.sequence(),
-        [item_b, item_c1, item_c3, item_c2, item_c21, item_a, item_c22, item_d],
+        [item_b, item_c1, item_a, item_c3, item_c2, item_c21, item_c22, item_d],
     )
 
 
