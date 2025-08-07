@@ -68,9 +68,7 @@ def test_util_schedule_dependency_on_self(plan):
 
     # And whether the graph.add() function catches this
     expect.fails(
-        lambda: graph.add(
-            struct(id="a", launch=_default_launch, dependencies=["a"])
-        ),
+        lambda: graph.add(struct(id="a", launch=_default_launch, dependencies=["a"])),
         "graph: Item a specifies itself as its dependency",
     )
 
@@ -164,6 +162,22 @@ def test_util_schedule_simple_linear_dependencies(plan):
     graph.add(item_a)
 
     expect.eq(graph.sequence(), [item_a, item_b])
+
+
+def test_util_schedule_reverse_order_of_addition(plan):
+    graph = _graph.create()
+
+    item_a = _graph.item(id="a", launch=_default_launch, dependencies=["b"])
+    item_b = _graph.item(id="b", launch=_default_launch, dependencies=["b.1", "b.2"])
+    item_b1 = _graph.item(id="b.1", launch=_default_launch)
+    item_b2 = _graph.item(id="b.2", launch=_default_launch)
+
+    graph.add(item_a)
+    graph.add(item_b)
+    graph.add(item_b1)
+    graph.add(item_b2)
+
+    expect.eq(graph.sequence(), [item_b1, item_b2, item_b, item_a])
 
 
 def test_util_schedule_simple_simple_cycle_dependencies(plan):

@@ -93,48 +93,55 @@ def create():
                 )
             )
 
-        # Now we have to order the items based on their dependencies
-        #
-        # First we start with the default sequence - the order in which the items were added
-        ordered_items = __items_by_id.values()
+        # Now we can order the items
+        remaining_items = __items_by_id.values()
+        ordered_items = []
         num_items = len(ordered_items)
 
-        for index in range(num_items):
-            item = ordered_items[index]
+        # Luckily for us our stack-based algo to order the graph
+        # has an upper limit of iterations - in every iteration we need to add at least one item to the ordered items,
+        # so the number of iterations is at most the number of items in the graph.
+        for iteration in range(num_items):
+            num_remaining_items = len(remaining_items)
 
-            # Since we are not allowed any unbound loops, we'll have to resort to somewhat different strategy
-            #
-            # We will calculate the lowest index at which this item can be placed
-            # based on its dependencies.
-            lowest_desired_index = _lowest_desired_index(item, ordered_items)
+            # We store the IDs of the already ordered items for easy lookups
+            ordered_item_ids = [item.id for item in ordered_items]
 
-            # If the lowest index is lower or equal to the current index, everything is fine and we can continue
-            if lowest_desired_index <= index:
-                continue
+            for index in range(num_remaining_items):
+                # We grab a remaining item
+                item = remaining_items[index]
 
-            # If the lowest index is greater than the current index, we need to swap the item with the item at the lowest index
-            item_to_swap = ordered_items[lowest_desired_index]
+                # Now we check whether its dependencies are already in the ordered items
+                missing_item_dependencies = [
+                    id for id in item.dependencies if id not in ordered_item_ids
+                ]
 
-            # We cannot just swap thew though - we also need to check that the item being swapped in is not dependent on the item being swapped out
-            #
-            # We do this by checking the lowest desired index for the item being swapped in,
-            # and if it is greater than the current index, we fail
-            #
-            # In other words, if the item we want to swap with the current item is dependent on the current item,
-            # we cannot swap them because we have a cycle
-            lowest_desired_index_for_item_to_swap = _lowest_desired_index(
-                item_to_swap, ordered_items
-            )
+                # If the items has missing dependencies, we cannot add it yet
+                if missing_item_dependencies:
+                    continue
 
-            if lowest_desired_index_for_item_to_swap > index:
-                fail(
-                    "Cannot create launch sequence: Item {} <-> {}".format(
-                        item.id, item_to_swap.id
-                    )
+                # If we are here, it means that all the dependencies of the item are already in the ordered items
+                # and we can add it to the ordered items
+                ordered_items.append(item)
+                ordered_item_ids.append(item.id)
+                remaining_items.remove(item)
+
+            # If the number of remaining items did not change,
+            # it means that we did not add any items in this iteration
+            # and we are stuck in a cycle.
+            if len(remaining_items) == num_remaining_items:
+                break
+
+        if len(remaining_items) > 0:
+            kurtosistest.debug("remaining items: {}".format(",".join([item.id for item in remaining_items])))
+            kurtosistest.debug("ordered items: {}".format(",".join([item.id for item in ordered_items])))
+
+            # TODO Better error message
+            fail(
+                "Cannot create launch sequence: Cycle detected in the graph. Remaining items: {}".format(
+                    ",".join([item.id for item in remaining_items])
                 )
-
-            ordered_items[index] = item_to_swap
-            ordered_items[lowest_desired_index] = item
+            )
 
         return ordered_items
 
