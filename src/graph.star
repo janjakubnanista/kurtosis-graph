@@ -187,22 +187,6 @@ def item(id, launch, dependencies=[]):
     )
 
 
-def _lowest_desired_index(item, items):
-    items_without_item = list(items)
-    items_without_item.remove(item)
-
-    for index in range(len(items)):
-        previous_items = items_without_item[:index]
-        previous_ids = [i.id for i in previous_items]
-
-        missing_dependencies = [
-            id for id in item.dependencies if id not in previous_ids
-        ]
-
-        if not missing_dependencies:
-            return index
-
-
 def _assert_item(item):
     type_of_item = type(item)
     if type_of_item != "struct":
