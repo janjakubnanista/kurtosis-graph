@@ -2,6 +2,7 @@ name: Check code submission
 
 on:
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: "${{ github.workflow_ref }}-${{ github.head_ref }}"
