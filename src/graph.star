@@ -135,9 +135,11 @@ def create():
                 break
 
         if len(remaining_items) > 0:
+            dependency_cycle_ids = _find_dependency_cycle(__items_by_id.values())
+
             fail(
-                "graph: Cannot create launch sequence: Cycle detected amongst {}".format(
-                    " ↔︎ ".join([item.id for item in remaining_items])
+                "graph: Cannot create launch sequence: Cycle detected: {}".format(
+                    " ← ".join(dependency_cycle_ids)
                 )
             )
 
@@ -183,6 +185,34 @@ def item(id, launch, dependencies=[]):
             id=id,
             launch=launch,
             dependencies=dependencies,
+        )
+    )
+
+
+def _find_dependency_cycle(items):
+    dependencies_by_id = {item.id: item.dependencies for item in items}
+    paths = [[item.id] for item in items]
+
+    for iteration in range(len(items)):
+        new_paths = []
+
+        for path in paths:
+            tail_id = path[-1]
+            tail_dependencies = dependencies_by_id[tail_id]
+
+            for tail_dependency_id in tail_dependencies:
+                path_with_tail_dependency = path + [tail_dependency_id]
+
+                if tail_dependency_id in path:
+                    return path_with_tail_dependency
+
+                new_paths.append(path_with_tail_dependency)
+
+        paths = new_paths
+
+    fail(
+        "graph: Could not find dependency cycle in {}".format(
+            ", ".join([item.id for item in items])
         )
     )
 
