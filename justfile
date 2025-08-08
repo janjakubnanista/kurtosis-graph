@@ -1,23 +1,28 @@
-fix-style:
+fix--style:
     kurtosis lint . --format
 
-lint-style:
+lint--style:
     kurtosis lint .
     
 # TODO(enable more checks)
-lint-code:
+lint--code:
     kurtosis-lint \
         --checked-calls \
         --local-imports \
         main.star src/ test/
 
-lint: lint-style lint-code
+lint: lint--style lint--code
 
 test:
     kurtosis-test .
 
-clean:
+clean--test:
     rm -rf .kurtosis-test
 
+clean--examples:
+    kurtosis clean
+
+clean: clean--test clean--examples
+
 example name: 
-    kurtosis run examples/{{name}}/main.star -v detailed
+    kurtosis run examples/{{name}}/main.star --enclave {{name}}
