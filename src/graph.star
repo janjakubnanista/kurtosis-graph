@@ -88,7 +88,7 @@ def create():
         ]
         if missing_dependency_ids:
             fail(
-                "Failed to launch: Missing items {}".format(
+                "graph: Failed to launch: Missing items {}".format(
                     ",".join(missing_dependency_ids)
                 )
             )
@@ -136,7 +136,7 @@ def create():
 
         if len(remaining_items) > 0:
             fail(
-                "Cannot create launch sequence: Cycle detected in the graph: {}".format(
+                "graph: Cannot create launch sequence: Cycle detected amongst {}".format(
                     " ↔︎ ".join([item.id for item in remaining_items])
                 )
             )
