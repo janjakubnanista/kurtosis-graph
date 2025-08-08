@@ -190,7 +190,8 @@ def test_util_schedule_simple_simple_cycle_dependencies(plan):
     graph.add(item_a)
 
     expect.fails(
-        lambda: graph.sequence(), "Cannot create launch sequence: Cycle detected in the graph: b ↔︎ a"
+        lambda: graph.sequence(),
+        "Cannot create launch sequence: Cycle detected in the graph: b ↔︎ a",
     )
 
 
@@ -208,7 +209,8 @@ def test_util_schedule_simple_large_cycle_dependencies(plan):
     graph.add(item_d)
 
     expect.fails(
-        lambda: graph.sequence(), "Cannot create launch sequence: Cycle detected in the graph: b ↔︎ a ↔︎ c ↔︎ d"
+        lambda: graph.sequence(),
+        "Cannot create launch sequence: Cycle detected in the graph: b ↔︎ a ↔︎ c ↔︎ d",
     )
 
 
