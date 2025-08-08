@@ -68,9 +68,7 @@ def test_util_schedule_dependency_on_self(plan):
 
     # And whether the graph.add() function catches this
     expect.fails(
-        lambda: graph.add(
-            struct(id="a", launch=_default_launch, dependencies=["a"])
-        ),
+        lambda: graph.add(struct(id="a", launch=_default_launch, dependencies=["a"])),
         "graph: Item a specifies itself as its dependency",
     )
 
@@ -166,6 +164,22 @@ def test_util_schedule_simple_linear_dependencies(plan):
     expect.eq(graph.sequence(), [item_a, item_b])
 
 
+def test_util_schedule_reverse_order_of_addition(plan):
+    graph = _graph.create()
+
+    item_a = _graph.item(id="a", launch=_default_launch, dependencies=["b"])
+    item_b = _graph.item(id="b", launch=_default_launch, dependencies=["b.1", "b.2"])
+    item_b1 = _graph.item(id="b.1", launch=_default_launch)
+    item_b2 = _graph.item(id="b.2", launch=_default_launch)
+
+    graph.add(item_a)
+    graph.add(item_b)
+    graph.add(item_b1)
+    graph.add(item_b2)
+
+    expect.eq(graph.sequence(), [item_b1, item_b2, item_b, item_a])
+
+
 def test_util_schedule_simple_simple_cycle_dependencies(plan):
     graph = _graph.create()
 
@@ -176,7 +190,7 @@ def test_util_schedule_simple_simple_cycle_dependencies(plan):
     graph.add(item_a)
 
     expect.fails(
-        lambda: graph.sequence(), "Cannot create launch sequence: Item b <-> a"
+        lambda: graph.sequence(), "Cannot create launch sequence: Cycle detected in the graph: b ↔︎ a"
     )
 
 
@@ -194,7 +208,7 @@ def test_util_schedule_simple_large_cycle_dependencies(plan):
     graph.add(item_d)
 
     expect.fails(
-        lambda: graph.sequence(), "Cannot create launch sequence: Item b <-> a"
+        lambda: graph.sequence(), "Cannot create launch sequence: Cycle detected in the graph: b ↔︎ a ↔︎ c ↔︎ d"
     )
 
 
@@ -223,7 +237,7 @@ def test_util_schedule_simple_branching_dependencies(plan):
 
     expect.eq(
         graph.sequence(),
-        [item_b, item_c1, item_c3, item_c2, item_c21, item_a, item_c22, item_d],
+        [item_b, item_c1, item_a, item_c3, item_c2, item_c21, item_c22, item_d],
     )
 
 
